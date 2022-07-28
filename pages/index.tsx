@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { useQuery } from "@tanstack/react-query";
@@ -11,19 +11,15 @@ import { getPokemon, PokemonOverview } from "../utils/getPokemon";
 import { pokemonBaseUrl } from "../config/config";
 import { ChangeEvent, ChangeEventHandler, useState } from "react";
 
-const Home: NextPage = () => {
-	const { data, isError, isLoading } = useQuery(["test"], async () => {
-		console.log("getting pokemon...");
+interface Props {
+	data?: PokemonOverview[];
+}
 
-		return await getPokemon();
-	});
-
+const Home: NextPage = ({ data }: Props) => {
 	const [filter, setFilter] = useState<string>("");
-	//const [pokemons, setPokemons] = useState<PokemonOverview[] | undefined>(data);
 
 	const handleFilter = (e: ChangeEvent<HTMLInputElement>) => {
 		setFilter(e.target.value);
-		//setPokemons(data?.filter((pokemon) => pokemon.name.includes(filter)));
 	};
 
 	console.log(filter);
@@ -49,8 +45,8 @@ const Home: NextPage = () => {
 				/>
 			</VStack>
 			<div className={styles.gridContainer}>
-				{isLoading && <p>Loading...</p>}
-				{isError && <p>An Error Occurred</p>}
+				{/* {isLoading && <p>Loading...</p>}
+				{isError && <p>An Error Occurred</p>} */}
 				{data &&
 					data
 						.filter((pokemon) =>
@@ -80,6 +76,14 @@ const Home: NextPage = () => {
 			</div>
 		</div>
 	);
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+	const data = await getPokemon();
+
+	return {
+		props: { data: data },
+	};
 };
 
 export default Home;

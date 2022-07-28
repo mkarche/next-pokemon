@@ -12,44 +12,12 @@ import {
 	Tr,
 	VStack,
 } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import { pokemonBaseUrl } from "../../config/config";
-import {
-	getPokemonById,
-	Pokemon,
-	PokemonOverview,
-} from "../../utils/getPokemon";
+import { getPokemonById, Pokemon } from "../../utils/getPokemon";
 
-const PokemonPage: NextPage = () => {
-	const {
-		query: { id },
-	} = useRouter();
-
-	// const { data, isLoading, isError } = useQuery(["singlePokemon"], async () => {
-	//     if (Array.isArray(id) || id === undefined) return;
-	// 	return await getPokemonById(id);
-	// });
-
-	const [data, setData] = useState<Pokemon | PokemonOverview[] | undefined>(
-		undefined
-	);
-	useEffect(() => {
-		const getData = async () => {
-			if (Array.isArray(id) || id === undefined) return;
-			const res = await getPokemonById(id);
-			setData(res);
-		};
-		if (id) {
-			getData();
-		}
-	}, [id]);
-
-	const pokemon = data && !Array.isArray(data) ? data : undefined;
-
+const PokemonPage: NextPage<Pokemon> = (pokemon?: Pokemon) => {
 	return (
 		<>
 			<Head>
@@ -57,8 +25,7 @@ const PokemonPage: NextPage = () => {
 				<meta name="description" content={pokemon?.name} />
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
-			{/* {isLoading && <div>Loading...</div>}
-			{isError && <div>An Error Occurred</div>} */}
+
 			{pokemon && (
 				<HStack>
 					<VStack p="2rem" alignItems="flex-start">
@@ -102,6 +69,17 @@ const PokemonPage: NextPage = () => {
 			)}
 		</>
 	);
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+	const id = context.params?.id;
+	if (Array.isArray(id) || id === undefined) return { props: {} };
+
+	const data = await getPokemonById(id);
+
+	return {
+		props: data,
+	};
 };
 
 export default PokemonPage;
