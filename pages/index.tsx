@@ -1,4 +1,4 @@
-import type { GetServerSideProps, NextPage } from "next";
+import type { GetServerSideProps, GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { useQuery } from "@tanstack/react-query";
@@ -21,8 +21,6 @@ const Home: NextPage = ({ data }: Props) => {
 	const handleFilter = (e: ChangeEvent<HTMLInputElement>) => {
 		setFilter(e.target.value);
 	};
-
-	console.log(filter);
 
 	return (
 		<div className={styles.container}>
@@ -78,7 +76,7 @@ const Home: NextPage = ({ data }: Props) => {
 	);
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getStaticProps: GetStaticProps = async (context) => {
 	const data = await getPokemon();
 
 	return {

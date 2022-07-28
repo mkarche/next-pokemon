@@ -12,10 +12,15 @@ import {
 	Tr,
 	VStack,
 } from "@chakra-ui/react";
-import type { GetServerSideProps, NextPage } from "next";
+import type {
+	GetServerSideProps,
+	GetStaticPaths,
+	GetStaticProps,
+	NextPage,
+} from "next";
 import Head from "next/head";
 import { pokemonBaseUrl } from "../../config/config";
-import { getPokemonById, Pokemon } from "../../utils/getPokemon";
+import { getPokemon, getPokemonById, Pokemon } from "../../utils/getPokemon";
 
 const PokemonPage: NextPage<Pokemon> = (pokemon?: Pokemon) => {
 	return (
@@ -71,7 +76,7 @@ const PokemonPage: NextPage<Pokemon> = (pokemon?: Pokemon) => {
 	);
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getStaticProps: GetStaticProps = async (context) => {
 	const id = context.params?.id;
 	if (Array.isArray(id) || id === undefined) return { props: {} };
 
@@ -79,6 +84,25 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 	return {
 		props: data,
+	};
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+	const pokemons = await getPokemon();
+
+	const paths: Array<{
+		params: {
+			id: string;
+		};
+	}> = pokemons.map((pokemon) => ({
+		params: {
+			id: pokemon.id.toString(),
+		},
+	}));
+
+	return {
+		paths: paths ? paths : [],
+		fallback: false,
 	};
 };
 
